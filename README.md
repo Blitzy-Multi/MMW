@@ -74,6 +74,16 @@ npm start
 
 ## Deployment guidance
 
+### GitHub Actions workflow
+
+A workflow has been added at `.github/workflows/ci-deploy.yml`.
+
+It will:
+- build the server
+- build the frontend
+- upload build artifacts
+- deploy the frontend to GitHub Pages from `client/dist`
+
 ### Zero-budget deployment path
 
 1. Push this repository to GitHub.
