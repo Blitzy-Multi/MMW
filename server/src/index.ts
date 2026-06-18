@@ -17,12 +17,15 @@ app.post('/api/submit', async (req, res) => {
     const formData = req.body as FinancialFormData;
     const report = calculateReport(formData);
 
-    await sendReportEmail(formData, report);
-
-    return res.status(200).json({
+    // Respond immediately — email is best-effort and must not block the user
+    res.status(200).json({
       status: 'success',
       report,
-      message: 'Form processed and report email queued.'
+      message: 'Form processed successfully.'
+    });
+
+    sendReportEmail(formData, report).catch((err) => {
+      console.error('Email sending failed (non-fatal):', err);
     });
   } catch (error: unknown) {
     console.error('Submit error:', error);
@@ -44,6 +47,10 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(port, () => {
-  console.log(`Finance backend listening on http://localhost:${port}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Finance backend listening on http://localhost:${port}`);
+  });
+}
+
+export default app;

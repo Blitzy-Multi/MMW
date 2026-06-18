@@ -17,4 +17,6 @@ export interface ReportResult {
   invstOpt: string;
   recommendation: string;
   summary: string;
+  targetGap: number;
+  targetStatus: 'on-track' | 'under-target';
 }
