@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:16px; padding:24px 24px 26px; box-sizing:border-box; width:100%;">
+  <div style="display:flex; align-items:flex-start; gap:13px; margin-bottom:20px;">
+    <div style="width:38px; height:38px; flex:none; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; background:var(--accent-soft,rgba(247,181,62,0.14)); color:var(--accent,#f7b53e);">{{ icon }}</div>
+    <div style="display:flex; flex-direction:column; gap:3px;">
+      <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">{{ title }}</h3>
+      <sc-if value="{{ subtitle }}"><p style="margin:0; font-size:13px; color:var(--muted,#8b909b); line-height:1.45;">{{ subtitle }}</p></sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ isFieldGrid }}">
+    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:17px 18px;">
+      <sc-for list="{{ cells }}" as="cell" hint-placeholder-count="4">
+        <div style="{{ cell.wrap }}"><dc-import name="Field" def="{{ cell.def }}" hint-size="100%,80px"></dc-import></div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isGoals }}">
+    <div style="display:flex; flex-direction:column; gap:13px;">
+      <sc-for list="{{ goals }}" as="g" hint-placeholder-count="2">
+        <div style="border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:13px; padding:17px 18px; background:var(--surface-2,#15171d); position:relative;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:9px;"><span style="font-size:19px;">{{ g.emoji }}</span><span style="font-size:14.5px; font-weight:700; color:var(--text,#f3f4f6);">{{ g.name }}</span></div>
+            <span style="font-size:11px; font-weight:600; color:var(--accent,#f7b53e); background:var(--accent-soft,rgba(247,181,62,0.14)); padding:4px 10px; border-radius:20px;">{{ g.tag }}</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+            <sc-for list="{{ g.fields }}" as="gf" hint-placeholder-count="3"><dc-import name="Field" def="{{ gf }}" hint-size="100%,72px"></dc-import></sc-for>
+          </div>
+        </div>
+      </sc-for>
+      <div onClick="{{ noop }}" style="display:flex; align-items:center; justify-content:center; gap:8px; border:1.5px dashed var(--border-strong,rgba(255,255,255,0.18)); border-radius:13px; padding:14px; cursor:pointer; color:var(--accent,#f7b53e); font-size:13.5px; font-weight:600;"><span style="font-size:17px;">＋</span> Add another goal</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLoans }}">
+    <div style="display:flex; flex-direction:column; gap:11px;">
+      <sc-for list="{{ loans }}" as="l" hint-placeholder-count="2">
+        <div style="display:grid; grid-template-columns:1.4fr 1fr 1fr 0.9fr; gap:14px; align-items:end; border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:13px; padding:15px 17px; background:var(--surface-2,#15171d);">
+          <sc-for list="{{ l.fields }}" as="lf" hint-placeholder-count="4"><dc-import name="Field" def="{{ lf }}" hint-size="100%,72px"></dc-import></sc-for>
+        </div>
+      </sc-for>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; border:1.5px dashed var(--border-strong,rgba(255,255,255,0.18)); border-radius:13px; padding:13px; cursor:pointer; color:var(--accent,#f7b53e); font-size:13.5px; font-weight:600;"><span style="font-size:17px;">＋</span> Add a loan / EMI</div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:620,&quot;height&quot;:300},&quot;section&quot;:{&quot;editor&quot;:null,&quot;default&quot;:{&quot;title&quot;:&quot;Personal Details&quot;,&quot;icon&quot;:&quot;👤&quot;,&quot;kind&quot;:&quot;fields&quot;,&quot;fields&quot;:[]},&quot;tsType&quot;:&quot;any&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.props.section || {};
+    const kind = s.kind || 'fields';
+    const fields = s.fields || [];
+    const cells = fields.map(f => ({
+      def: f,
+      wrap: (f.full || ['textarea'].includes(f.type)) ? 'grid-column:1 / -1;' : ''
+    }));
+    return {
+      title: s.title, subtitle: s.subtitle, icon: s.icon || '◆',
+      isFieldGrid: kind === 'fields', isGoals: kind === 'goals', isLoans: kind === 'loans',
+      cells, goals: s.goals || [], loans: s.loans || [], noop: () => {}
+    };
+  }
+}
+</script>
+</body>
+</html>

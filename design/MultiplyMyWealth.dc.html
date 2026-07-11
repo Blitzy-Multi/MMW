@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif; background:#202024; min-height:100%; width:100%; box-sizing:border-box; padding:48px 56px 72px;">
+
+  <!-- Canvas header -->
+  <div style="max-width:1640px; margin:0 auto 40px; display:flex; align-items:center; gap:16px;">
+    <div style="width:46px; height:46px; border-radius:13px; background:#2ee6c5; display:flex; align-items:center; justify-content:center; color:#04241e; font-size:24px; font-weight:800;">✦</div>
+    <div style="flex:1;">
+      <h1 style="margin:0; font-size:24px; font-weight:800; color:#fff; letter-spacing:-0.02em;">Multiply My Wealth — wealth-planning wizard</h1>
+      <p style="margin:3px 0 0; font-size:14px; color:#9b9ba3;">Dark &amp; light themes · desktop and mobile · 3-step form → report → confirmation</p>
+    </div>
+  </div>
+
+  <!-- DARK -->
+  <div style="max-width:1640px; margin:0 auto 56px;">
+    <div style="display:flex; align-items:center; gap:11px; margin-bottom:18px;">
+      <span style="width:13px; height:13px; border-radius:4px; background:#000; border:1px solid #3a3a40;"></span>
+      <h2 style="margin:0; font-size:16px; font-weight:700; color:#fff; letter-spacing:-0.01em;">Dark theme</h2>
+      <span style="font-size:12.5px; color:#9b9ba3;">True-black surfaces, mint-teal accent</span>
+    </div>
+    <div style="display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:12px; font-weight:700; color:#9b9ba3; margin-bottom:9px; letter-spacing:0.04em;">DESKTOP</div>
+        <div style="width:1180px; height:760px; border-radius:18px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,0.55); border:1px solid #000;">
+          <dc-import name="App" theme="dark" platform="desktop" hint-size="1180px,760px"></dc-import>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:700; color:#9b9ba3; margin-bottom:9px; letter-spacing:0.04em;">MOBILE</div>
+        <div style="width:392px; height:760px; border-radius:30px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,0.55); border:5px solid #0a0a0c;">
+          <dc-import name="App" theme="dark" platform="mobile" hint-size="382px,750px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHT -->
+  <div style="max-width:1640px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:11px; margin-bottom:18px;">
+      <span style="width:13px; height:13px; border-radius:4px; background:#fff; border:1px solid #d4d4d8;"></span>
+      <h2 style="margin:0; font-size:16px; font-weight:700; color:#fff; letter-spacing:-0.01em;">Light theme</h2>
+      <span style="font-size:12.5px; color:#9b9ba3;">Soft paper surfaces, deeper-teal accent</span>
+    </div>
+    <div style="display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap;">
+      <div>
+        <div style="font-size:12px; font-weight:700; color:#9b9ba3; margin-bottom:9px; letter-spacing:0.04em;">DESKTOP</div>
+        <div style="width:1180px; height:760px; border-radius:18px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,0.4); border:1px solid #34343a;">
+          <dc-import name="App" theme="light" platform="desktop" hint-size="1180px,760px"></dc-import>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px; font-weight:700; color:#9b9ba3; margin-bottom:9px; letter-spacing:0.04em;">MOBILE</div>
+        <div style="width:392px; height:760px; border-radius:30px; overflow:hidden; box-shadow:0 24px 70px rgba(0,0,0,0.4); border:5px solid #e6e6ea;">
+          <dc-import name="App" theme="light" platform="mobile" hint-size="382px,750px"></dc-import>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

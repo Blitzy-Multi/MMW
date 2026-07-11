@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; text-align:center; padding:40px 28px 36px;">
+  <div style="position:relative; width:88px; height:88px; margin-bottom:24px;">
+    <div style="position:absolute; inset:0; border-radius:50%; background:var(--green-soft,rgba(52,210,123,0.16));"></div>
+    <svg viewBox="0 0 88 88" style="position:relative; width:88px; height:88px;">
+      <circle cx="44" cy="44" r="33" fill="none" stroke="var(--green,#34d27b)" stroke-width="3"></circle>
+      <path d="M30 45 L40 55 L59 33" fill="none" stroke="var(--green,#34d27b)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </div>
+
+  <h2 style="margin:0 0 12px; font-size:28px; font-weight:800; color:var(--text,#f3f4f6); letter-spacing:-0.025em; max-width:460px; line-height:1.15;">Your wealth plan is on its way, {{ name }}</h2>
+  <p style="margin:0 0 30px; font-size:15px; color:var(--muted,#8b909b); max-width:430px; line-height:1.6;">We've sent your personalised report to <strong style="color:var(--text,#f3f4f6);">{{ email }}</strong>. A certified advisor will reach out within 24 hours to walk you through it.</p>
+
+  <div style="display:flex; flex-direction:column; gap:13px; width:100%; max-width:430px; margin-bottom:30px;">
+    <sc-for list="{{ nexts }}" as="s" hint-placeholder-count="3">
+      <div style="display:flex; align-items:center; gap:14px; background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:14px; padding:16px 18px; text-align:left;">
+        <span style="width:40px; height:40px; flex:none; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--accent-soft,rgba(247,181,62,0.14));">{{ s.icon }}</span>
+        <div><div style="font-size:14.5px; font-weight:700; color:var(--text,#f3f4f6); margin-bottom:2px;">{{ s.title }}</div><div style="font-size:12.5px; color:var(--muted,#8b909b); line-height:1.45;">{{ s.desc }}</div></div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+    <div onClick="{{ onView }}" style="cursor:pointer; height:48px; padding:0 28px; display:flex; align-items:center; border-radius:11px; background:var(--accent,#f7b53e); color:var(--accent-ink,#1a1205); font-size:14.5px; font-weight:700;">View my report</div>
+    <div style="cursor:pointer; height:48px; padding:0 28px; display:flex; align-items:center; border-radius:11px; border:1px solid var(--border-strong,rgba(255,255,255,0.18)); color:var(--text,#f3f4f6); font-size:14.5px; font-weight:600;">Download PDF</div>
+  </div>
+
+  <p style="margin:28px 0 0; font-size:12px; color:var(--muted,#8b909b);">Reference ID · MMW-2026-{{ ref }}</p>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:620,&quot;height&quot;:640},&quot;name&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Rahul Sharma&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;email&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;rahul.sharma@email.com&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;onView&quot;:{&quot;editor&quot;:null,&quot;default&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      name: (this.props.name || 'Rahul').split(' ')[0],
+      email: this.props.email || 'rahul.sharma@email.com',
+      ref: '4821',
+      onView: this.props.onView || (() => {}),
+      nexts: [
+        { icon: '📧', title: 'Check your inbox', desc: 'Your detailed PDF report is on its way now.' },
+        { icon: '📞', title: 'Advisor call scheduled', desc: 'Expect a call within 24 hours from our wealth team.' },
+        { icon: '📊', title: 'Track your progress', desc: 'Log in anytime to update goals and watch your plan adapt.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

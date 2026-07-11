@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex; flex-direction:column; gap:7px; width:100%; box-sizing:border-box;">
+  <sc-if value="{{ showLabel }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex; align-items:center; gap:6px; min-height:17px;">
+      <span style="font-size:13px; font-weight:600; color:var(--text,#f3f4f6); letter-spacing:-0.01em;">{{ label }}</span>
+      <sc-if value="{{ required }}"><span style="color:var(--danger,#ff5d4d); font-weight:700; font-size:13px;">*</span></sc-if>
+      <sc-if value="{{ info }}"><span title="{{ info }}" style="display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; border:1px solid var(--muted,#8b909b); color:var(--muted,#8b909b); font-size:9px; font-weight:700; font-style:italic; cursor:help;">i</span></sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isPlainInput }}">
+    <input type="{{ inputType }}" inputmode="{{ inputMode }}" placeholder="{{ placeholder }}" defaultValue="{{ sample }}" style="width:100%; height:44px; border:1px solid var(--border,rgba(255,255,255,0.1)); background:var(--surface-2,#15171d); color:var(--text,#f3f4f6); border-radius:10px; padding:0 14px; font-size:14.5px; font-family:inherit; font-style:italic; outline:none; box-sizing:border-box; transition:border-color .15s;" style-focus="border-color:var(--accent,#f7b53e);" />
+  </sc-if>
+
+  <sc-if value="{{ isCurrencyInput }}">
+    <div style="position:relative; width:100%;">
+      <span style="position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--muted,#8b909b); font-size:14.5px; pointer-events:none;">₹</span>
+      <input inputmode="numeric" placeholder="{{ placeholder }}" defaultValue="{{ sample }}" style="width:100%; height:44px; border:1px solid var(--border,rgba(255,255,255,0.1)); background:var(--surface-2,#15171d); color:var(--text,#f3f4f6); border-radius:10px; padding:0 14px 0 28px; font-size:14.5px; font-family:inherit; font-style:italic; outline:none; box-sizing:border-box; transition:border-color .15s;" style-focus="border-color:var(--accent,#f7b53e);" />
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSelect }}">
+    <div style="position:relative; width:100%;">
+      <select defaultValue="{{ sample }}" style="appearance:none; -webkit-appearance:none; width:100%; height:44px; border:1px solid var(--border,rgba(255,255,255,0.1)); background:var(--surface-2,#15171d); color:var(--text,#f3f4f6); border-radius:10px; padding:0 36px 0 14px; font-size:14.5px; font-family:inherit; outline:none; box-sizing:border-box; cursor:pointer;">
+        <sc-for list="{{ options }}" as="opt" hint-placeholder-count="3"><option value="{{ opt }}">{{ opt }}</option></sc-for>
+      </select>
+      <span style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:var(--muted,#8b909b); font-size:10px; pointer-events:none;">▼</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isRadio }}">
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <sc-for list="{{ optionObjs }}" as="opt" hint-placeholder-count="2">
+        <div onClick="{{ opt.onSelect }}" style="{{ opt.style }}">{{ opt.label }}</div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isToggle }}">
+    <div onClick="{{ toggle }}" style="display:inline-flex; align-items:center; gap:11px; cursor:pointer; user-select:none;">
+      <div style="{{ trackStyle }}"><div style="{{ knobStyle }}"></div></div>
+      <span style="font-size:14px; font-weight:600; color:var(--text,#f3f4f6);">{{ toggleLabel }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isTextarea }}">
+    <textarea placeholder="{{ placeholder }}" defaultValue="{{ sample }}" style="width:100%; min-height:82px; border:1px solid var(--border,rgba(255,255,255,0.1)); background:var(--surface-2,#15171d); color:var(--text,#f3f4f6); border-radius:10px; padding:12px 14px; font-size:14.5px; font-family:inherit; font-style:italic; outline:none; box-sizing:border-box; resize:vertical; line-height:1.5;" style-focus="border-color:var(--accent,#f7b53e);"></textarea>
+  </sc-if>
+
+  <sc-if value="{{ helper }}"><div style="font-size:11.5px; color:var(--muted,#8b909b); line-height:1.4;">{{ helper }}</div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:300,&quot;height&quot;:90},&quot;def&quot;:{&quot;editor&quot;:null,&quot;default&quot;:{&quot;label&quot;:&quot;Full Name&quot;,&quot;type&quot;:&quot;text&quot;,&quot;sample&quot;:&quot;Rahul Sharma&quot;,&quot;required&quot;:true},&quot;tsType&quot;:&quot;any&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const f = this.props.def || {};
+    const type = f.type || 'text';
+    const isCurrency = type === 'currency';
+    const isInput = ['text', 'number', 'currency', 'email'].includes(type);
+    const options = f.options || [];
+    const sel = this.state.radioSel != null ? this.state.radioSel : (f.sampleIndex || 0);
+    const optionObjs = options.map((o, i) => ({
+      label: o,
+      onSelect: () => this.setState({ radioSel: i }),
+      style: 'flex:1 1 auto; min-width:64px; text-align:center; cursor:pointer; padding:11px 16px; border-radius:10px; font-size:13.5px; font-weight:600; box-sizing:border-box; transition:all .15s; border:1px solid ' +
+        (i === sel ? 'var(--accent,#f7b53e)' : 'var(--border,rgba(255,255,255,0.12))') +
+        '; background:' + (i === sel ? 'var(--accent,#f7b53e)' : 'transparent') +
+        '; color:' + (i === sel ? 'var(--accent-ink,#1a1205)' : 'var(--text,#f3f4f6)') + ';'
+    }));
+    const on = this.state.toggleOn != null ? this.state.toggleOn : !!f.sampleOn;
+    const trackStyle = 'width:46px; height:26px; border-radius:13px; flex:none; position:relative; transition:.2s; background:' +
+      (on ? 'var(--green,#34d27b)' : 'var(--border,rgba(255,255,255,0.18))') + ';';
+    const knobStyle = 'position:absolute; top:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.35); left:' + (on ? '23px' : '3px') + ';';
+    return {
+      label: f.label, required: !!f.required, helper: f.helper, info: f.info,
+      placeholder: f.placeholder || '', sample: f.sample != null ? String(f.sample) : '',
+      showLabel: !!f.label,
+      isPlainInput: isInput && !isCurrency, isCurrencyInput: isCurrency,
+      isSelect: type === 'select', isRadio: type === 'radio', isToggle: type === 'toggle', isTextarea: type === 'textarea',
+      inputType: type === 'email' ? 'email' : 'text',
+      inputMode: (type === 'number' || type === 'currency') ? 'numeric' : 'text',
+      options, optionObjs,
+      toggle: () => this.setState({ toggleOn: !on }), toggleLabel: on ? 'Yes' : 'No', trackStyle, knobStyle
+    };
+  }
+}
+</script>
+</body>
+</html>

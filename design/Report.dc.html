@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="width:100%; box-sizing:border-box; display:flex; flex-direction:column; gap:18px;">
+
+  <!-- Header banner -->
+  <div style="position:relative; overflow:hidden; border-radius:18px; padding:28px 30px; background:linear-gradient(135deg, var(--accent,#f7b53e) 0%, var(--accent-2,#e0912a) 100%); color:var(--accent-ink,#1a1205);">
+    <div style="position:absolute; right:-40px; top:-40px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.12);"></div>
+    <div style="position:relative; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px;">
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.14em; opacity:0.7;">Personalised Wealth Plan</span>
+        <h2 style="margin:0; font-size:27px; font-weight:800; letter-spacing:-0.02em;">{{ name }}, here's your roadmap</h2>
+        <p style="margin:0; font-size:13.5px; opacity:0.78; max-width:440px; line-height:1.5;">Based on your income, expenses and goals — here's how to multiply your wealth over the next {{ horizon }} years.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(26,18,5,0.12); border-radius:16px; padding:14px 22px;">
+        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; opacity:0.7;">Wealth Health</span>
+        <span style="font-size:42px; font-weight:800; line-height:1;">{{ score }}</span>
+        <span style="font-size:12px; font-weight:600;">{{ scoreLabel }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+    <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+      <div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:15px; padding:18px 18px;">
+        <div style="font-size:12px; color:var(--muted,#8b909b); font-weight:600; margin-bottom:9px;">{{ k.label }}</div>
+        <div style="font-size:23px; font-weight:800; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">{{ k.value }}</div>
+        <div style="font-size:11.5px; font-weight:600; margin-top:6px; color:{{ k.deltaColor }};">{{ k.delta }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- Waterfall -->
+  <div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:18px; padding:24px 26px 18px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+      <h3 style="margin:0; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">Where your money goes each month</h3>
+      <span style="font-size:12px; color:var(--muted,#8b909b);">Monthly · ₹</span>
+    </div>
+    <p style="margin:0 0 6px; font-size:13px; color:var(--muted,#8b909b);">From gross income down to the surplus you can invest.</p>
+    <svg viewBox="0 0 620 300" style="width:100%; height:auto; display:block; overflow:visible;">
+      <sc-for list="{{ wfGrid }}" as="g" hint-placeholder-count="4">
+        <line x1="{{ g.x1 }}" y1="{{ g.y }}" x2="{{ g.x2 }}" y2="{{ g.y }}" stroke="var(--grid,rgba(255,255,255,0.06))" stroke-width="1"></line>
+      </sc-for>
+      <sc-for list="{{ wfBars }}" as="b" hint-placeholder-count="5">
+        <line x1="{{ b.connX }}" y1="{{ b.connY }}" x2="{{ b.connX2 }}" y2="{{ b.connY }}" stroke="var(--muted,#8b909b)" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"></line>
+        <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="5" fill="{{ b.fill }}"></rect>
+        <text x="{{ b.cx }}" y="{{ b.labelY }}" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--text,#f3f4f6)">{{ b.amount }}</text>
+        <text x="{{ b.cx }}" y="290" text-anchor="middle" font-size="11.5" fill="var(--muted,#8b909b)">{{ b.label }}</text>
+      </sc-for>
+    </svg>
+  </div>
+
+  <!-- Donut + legend, and goal tracker side by side -->
+  <div style="display:grid; grid-template-columns:1fr 1.25fr; gap:18px;">
+    <div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:18px; padding:24px 26px;">
+      <h3 style="margin:0 0 4px; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">Recommended allocation</h3>
+      <p style="margin:0 0 16px; font-size:13px; color:var(--muted,#8b909b);">Of your ₹{{ surplusK }}k monthly surplus.</p>
+      <div style="display:flex; align-items:center; gap:22px;">
+        <svg viewBox="0 0 160 160" style="width:150px; height:150px; flex:none;">
+          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--surface-2,#15171d)" stroke-width="22"></circle>
+          <sc-for list="{{ donut }}" as="d" hint-placeholder-count="4">
+            <circle cx="80" cy="80" r="60" fill="none" stroke="{{ d.color }}" stroke-width="22" stroke-dasharray="{{ d.dash }}" stroke-dashoffset="{{ d.offset }}" transform="rotate(-90 80 80)" stroke-linecap="butt"></circle>
+          </sc-for>
+          <text x="80" y="74" text-anchor="middle" font-size="13" font-weight="700" fill="var(--text,#f3f4f6)">₹{{ surplusK }}k</text>
+          <text x="80" y="92" text-anchor="middle" font-size="10" fill="var(--muted,#8b909b)">/ month</text>
+        </svg>
+        <div style="display:flex; flex-direction:column; gap:11px; flex:1;">
+          <sc-for list="{{ donut }}" as="d" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <span style="width:11px; height:11px; border-radius:3px; flex:none; background:{{ d.color }};"></span>
+              <span style="font-size:13px; color:var(--text,#f3f4f6); font-weight:600; flex:1;">{{ d.label }}</span>
+              <span style="font-size:13px; color:var(--muted,#8b909b); font-weight:700;">{{ d.pct }}%</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:18px; padding:24px 26px;">
+      <h3 style="margin:0 0 16px; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">Goal funding tracker</h3>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <sc-for list="{{ goals }}" as="g" hint-placeholder-count="3">
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <div style="display:flex; align-items:center; gap:8px;"><span style="font-size:16px;">{{ g.emoji }}</span><span style="font-size:13.5px; font-weight:700; color:var(--text,#f3f4f6);">{{ g.name }}</span><span style="font-size:11px; color:var(--muted,#8b909b);">· {{ g.year }}</span></div>
+              <span style="font-size:12.5px; font-weight:700; color:{{ g.statusColor }};">{{ g.status }}</span>
+            </div>
+            <div style="height:9px; border-radius:6px; background:var(--surface-2,#15171d); overflow:hidden;"><div style="height:100%; border-radius:6px; width:{{ g.pct }}%; background:{{ g.barColor }};"></div></div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:11.5px; color:var(--muted,#8b909b);"><span>On track: ₹{{ g.have }}</span><span>Target: ₹{{ g.target }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roadmap timeline -->
+  <div style="background:var(--surface,#101216); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:18px; padding:24px 26px 20px;">
+    <h3 style="margin:0 0 4px; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">Your wealth roadmap</h3>
+    <p style="margin:0 0 8px; font-size:13px; color:var(--muted,#8b909b);">Projected net worth and the milestones along the way.</p>
+    <svg viewBox="0 0 640 280" style="width:100%; height:auto; display:block; overflow:visible;">
+      <defs>
+        <linearGradient id="rmFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent,#f7b53e)" stop-opacity="0.32"></stop>
+          <stop offset="100%" stop-color="var(--accent,#f7b53e)" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <path d="{{ areaPath }}" fill="url(#rmFill)"></path>
+      <path d="{{ linePath }}" fill="none" stroke="var(--accent,#f7b53e)" stroke-width="2.5" stroke-linejoin="round"></path>
+      <line x1="40" y1="220" x2="620" y2="220" stroke="var(--grid,rgba(255,255,255,0.1))" stroke-width="1"></line>
+      <sc-for list="{{ milestones }}" as="m" hint-placeholder-count="4">
+        <line x1="{{ m.x }}" y1="{{ m.y }}" x2="{{ m.x }}" y2="220" stroke="var(--grid,rgba(255,255,255,0.12))" stroke-width="1" stroke-dasharray="3 3"></line>
+        <circle cx="{{ m.x }}" cy="{{ m.y }}" r="5.5" fill="var(--accent,#f7b53e)" stroke="var(--surface,#101216)" stroke-width="2.5"></circle>
+        <text x="{{ m.x }}" y="{{ m.labelY }}" text-anchor="{{ m.anchor }}" font-size="11.5" font-weight="700" fill="var(--text,#f3f4f6)">{{ m.emoji }} {{ m.short }}</text>
+        <text x="{{ m.x }}" y="238" text-anchor="middle" font-size="11" fill="var(--muted,#8b909b)">{{ m.year }}</text>
+        <text x="{{ m.x }}" y="{{ m.amtY }}" text-anchor="{{ m.anchor }}" font-size="10.5" fill="var(--muted,#8b909b)">₹{{ m.amount }}</text>
+      </sc-for>
+    </svg>
+  </div>
+
+  <!-- Action steps -->
+  <div style="background:var(--accent-soft,rgba(247,181,62,0.1)); border:1px solid var(--accent,#f7b53e); border-radius:18px; padding:24px 26px;">
+    <h3 style="margin:0 0 14px; font-size:17px; font-weight:700; color:var(--text,#f3f4f6); letter-spacing:-0.02em;">Your next 3 moves</h3>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
+        <div style="display:flex; gap:13px; align-items:flex-start;">
+          <span style="width:26px; height:26px; flex:none; border-radius:50%; background:var(--accent,#f7b53e); color:var(--accent-ink,#1a1205); font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center;">{{ a.n }}</span>
+          <div><div style="font-size:14px; font-weight:700; color:var(--text,#f3f4f6); margin-bottom:2px;">{{ a.title }}</div><div style="font-size:13px; color:var(--muted,#8b909b); line-height:1.5;">{{ a.desc }}</div></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:820,&quot;height&quot;:1400},&quot;name&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Rahul Sharma&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const name = (this.props.name || 'Rahul').split(' ')[0];
+    // ---- Waterfall ----
+    const steps = [
+      { label: 'Income', val: 185000, type: 'pos' },
+      { label: 'Expenses', val: -78000, type: 'neg' },
+      { label: 'Loan EMIs', val: -42000, type: 'neg' },
+      { label: 'Current SIPs', val: -25000, type: 'neg' },
+      { label: 'Surplus', val: 40000, type: 'total' }
+    ];
+    const maxV = 185000, baseY = 250, topY = 30, usable = baseY - topY;
+    const sc = usable / maxV;
+    const n = steps.length, slot = 620 / n, bw = 70;
+    let running = 0;
+    const colors = { pos: 'var(--green,#34d27b)', neg: 'var(--danger,#ff6f5e)', total: 'var(--accent,#f7b53e)' };
+    const fmt = v => '₹' + (Math.abs(v) >= 100000 ? (v/100000).toFixed(2).replace(/\.00$/,'') + 'L' : Math.round(Math.abs(v)/1000) + 'k');
+    const wfBars = steps.map((s, i) => {
+      const cx = slot * i + slot / 2;
+      let top, bottom;
+      if (s.type === 'pos') { bottom = running; top = running + s.val; running = top; }
+      else if (s.type === 'neg') { top = running; bottom = running + s.val; running = bottom; }
+      else { top = s.val; bottom = 0; }
+      const yTop = baseY - top * sc, yBot = baseY - bottom * sc;
+      const prevCx = slot * (i - 1) + slot / 2;
+      return {
+        x: cx - bw / 2, w: bw, y: Math.min(yTop, yBot), h: Math.max(2, Math.abs(yBot - yTop)),
+        cx, fill: colors[s.type], amount: (s.val < 0 ? '−' : '') + fmt(s.val),
+        labelY: Math.min(yTop, yBot) - 8, label: s.label,
+        connX: prevCx + bw/2, connX2: cx - bw/2, connY: i === 0 || s.type === 'total' ? -100 : baseY - running * sc
+      };
+    });
+    const wfGrid = [0,1,2,3,4].map(i => ({ x1: 30, x2: 620, y: baseY - (maxV/4)*i*sc }));
+
+    // ---- Donut ----
+    const alloc = [
+      { label: 'Equity Mutual Funds', pct: 45, color: 'var(--accent,#f7b53e)' },
+      { label: 'Index / ETF', pct: 20, color: '#5b9dff' },
+      { label: 'Debt & Bonds', pct: 15, color: '#a78bfa' },
+      { label: 'Gold / SGB', pct: 10, color: '#f472b6' },
+      { label: 'Emergency Fund', pct: 10, color: '#8b909b' }
+    ];
+    const C = 2 * Math.PI * 60; let acc = 0;
+    const donut = alloc.map(a => {
+      const len = a.pct / 100 * C;
+      const seg = { label: a.label, pct: a.pct, color: a.color, dash: `${len} ${C - len}`, offset: -acc };
+      acc += len; return seg;
+    });
+
+    // ---- Goals ----
+    const goals = [
+      { emoji: '🏠', name: 'Dream Home', year: 2031, pct: 62, have: '38.4L', target: '62L', status: 'On track', good: true },
+      { emoji: '🎓', name: "Child's Education", year: 2038, pct: 78, have: '21L', target: '27L', status: 'On track', good: true },
+      { emoji: '🏖️', name: 'Retirement', year: 2048, pct: 41, have: '1.2Cr', target: '2.9Cr', status: 'Boost SIP', good: false },
+      { emoji: '🚗', name: 'New Car', year: 2027, pct: 88, have: '15.4L', target: '17.5L', status: 'On track', good: true }
+    ].map(g => ({ ...g, statusColor: g.good ? 'var(--green,#34d27b)' : 'var(--accent,#f7b53e)', barColor: g.good ? 'var(--green,#34d27b)' : 'var(--accent,#f7b53e)' }));
+
+    // ---- Roadmap ----
+    const pts = [
+      { year: 2026, amount: '24L', v: 24 },
+      { year: 2031, amount: '78L', v: 78, emoji: '🏠', short: 'Home' },
+      { year: 2038, amount: '2.1Cr', v: 210, emoji: '🎓', short: 'Education' },
+      { year: 2048, amount: '6.4Cr', v: 640, emoji: '🏖️', short: 'Retire' }
+    ];
+    const x0 = 40, x1 = 620, maxA = 640, gTop = 40, gBase = 220;
+    const xFor = (i) => x0 + (x1 - x0) * (i / (pts.length - 1));
+    const yFor = (v) => gBase - (v / maxA) * (gBase - gTop);
+    const coords = pts.map((p, i) => ({ x: xFor(i), y: yFor(p.v) }));
+    const linePath = coords.map((c, i) => (i === 0 ? 'M' : 'L') + c.x.toFixed(1) + ' ' + c.y.toFixed(1)).join(' ');
+    const areaPath = linePath + ' L' + x1 + ' ' + gBase + ' L' + x0 + ' ' + gBase + ' Z';
+    const milestones = pts.map((p, i) => ({
+      x: xFor(i), y: yFor(p.v), year: p.year, amount: p.amount, emoji: p.emoji || '●',
+      short: p.short || 'Today', labelY: yFor(p.v) - 14, amtY: yFor(p.v) - 28,
+      anchor: i === 0 ? 'start' : (i === pts.length - 1 ? 'end' : 'middle')
+    }));
+
+    return {
+      name, horizon: 22, score: 78, scoreLabel: 'Strong',
+      kpis: [
+        { label: 'Monthly surplus', value: '₹40,000', delta: '↑ ₹15k possible', deltaColor: 'var(--green,#34d27b)' },
+        { label: 'Net worth today', value: '₹24.0L', delta: 'Across 5 assets', deltaColor: 'var(--muted,#8b909b)' },
+        { label: 'Projected (2048)', value: '₹6.4Cr', delta: '↑ 26× growth', deltaColor: 'var(--green,#34d27b)' },
+        { label: 'Goals fully funded', value: '3 of 4', delta: 'Retirement needs work', deltaColor: 'var(--accent,#f7b53e)' }
+      ],
+      wfBars, wfGrid, donut, surplusK: 40, goals, linePath, areaPath, milestones,
+      actions: [
+        { n: 1, title: 'Increase SIP by ₹15,000/month', desc: 'Redirect idle savings-account cash into your equity funds to close the retirement gap.' },
+        { n: 2, title: 'Build a 6-month emergency fund', desc: 'Park ₹4.7L in a liquid fund before scaling up market exposure.' },
+        { n: 3, title: 'Refinance your highest-rate EMI', desc: 'Your personal loan at 14% is the costliest — prepaying frees ₹9k/month.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
