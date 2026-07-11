@@ -101,7 +101,8 @@ export default function App() {
     setError('');
     setLoading(true);
     try {
-      const res = await axios.post('/api/submit', formData);
+      const base = import.meta.env.VITE_API_URL || '';
+      const res = await axios.post(`${base}/api/submit`, formData);
       setReport(res.data.report);
     } catch (err) {
       console.error(err);
