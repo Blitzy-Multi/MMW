@@ -24,6 +24,8 @@ export interface FinancialFormData {
   houseEmiPerMonth: number;
   vehicleEmiPerMonth: number;
   otherEmiPerMonth: number;
+  homeLoanDetails: string;           // descriptive comment (bank, amount, years, rate)
+  homeLoanInterestPerYear: number;   // actual interest paid — for 24B recommendation
 
   // Step 3b: Liquid funds this year (basic_financial §5)
   fdMaturedThisYear: number;
@@ -31,7 +33,8 @@ export interface FinancialFormData {
   mfCapitalGainsThisYear: number;
 
   // Step 3c: Future blocked funds (basic_financial §6)
-  sgbFutureValue: number;
+  sgbFutureValue: number;            // 6.1
+  spareGoldValue: number;            // 6.2 spare gold coins/biscuits
   fdFutureValue: number;             // 6.3
   mfUnrealizedFuture: number;        // 6.4 unrealized MF/equity
   epfCorpus: number;                 // 6.6
@@ -46,6 +49,8 @@ export interface FinancialFormData {
   plotLandValue: number;             // 7.3
   parentalPropertyValue: number;     // 7.4
   jewelryValue: number;              // 7.5
+  spouseIncomePerYear: number;       // 7.6 additional salary/business income from spouse
+  spouseLiquidFunds: number;         // 7.7 liquid fund available from spouse
 
   // Step 4a: Insurance (current_Invst_Risk §1)
   lifeTermInsurancePerYear: number;

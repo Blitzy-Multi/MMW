@@ -21,12 +21,15 @@ export interface FinancialFormData {
   houseEmiPerMonth: number;
   vehicleEmiPerMonth: number;
   otherEmiPerMonth: number;
+  homeLoanDetails: string;          // descriptive comment (bank, amount, years, rate)
+  homeLoanInterestPerYear: number;  // actual interest paid (for 24B recommendation)
 
   fdMaturedThisYear: number;
   dividendsThisYear: number;
   mfCapitalGainsThisYear: number;
 
   sgbFutureValue: number;
+  spareGoldValue: number;           // spare gold coins/biscuits (basic_financial 6.2)
   fdFutureValue: number;
   mfUnrealizedFuture: number;
   epfCorpus: number;
@@ -40,6 +43,8 @@ export interface FinancialFormData {
   plotLandValue: number;
   parentalPropertyValue: number;
   jewelryValue: number;
+  spouseIncomePerYear: number;      // additional salary/business income from spouse (basic_financial 7.6)
+  spouseLiquidFunds: number;        // liquid fund available from spouse (basic_financial 7.7)
 
   lifeTermInsurancePerYear: number;
   medicalInsurancePerYear: number;
@@ -98,6 +103,8 @@ const LIMIT_80TTA = 10000;
 const LIMIT_MEDICAL_SELF = 25000;
 const LIMIT_MEDICAL_PARENTS_SR = 50000;
 const EMERGENCY_RESERVE = 100000;
+// EPF + VPF combined limit for tax-free interest (Finance Act 2021: interest taxable above ₹2.5L/yr)
+const EPF_VPF_TAX_FREE_LIMIT = 250000;
 
 export function calculateReport(data: FinancialFormData): ReportResult {
   // === Est_Inv_Fund calculation chain (Sheet 4) ===
@@ -134,13 +141,15 @@ export function calculateReport(data: FinancialFormData): ReportResult {
     - EMERGENCY_RESERVE;
 
   const futureLiquidFunds =
-    data.sgbFutureValue + data.fdFutureValue + data.mfUnrealizedFuture +
+    data.sgbFutureValue + data.spareGoldValue + data.fdFutureValue + data.mfUnrealizedFuture +
     data.epfCorpus + data.ppfCorpus + data.npsCorpus +
     data.ssyLicCorpus + data.otherFutureCorpus;
 
+  // Immovable assets includes spouse income/funds per basic_financial §7.6 and §7.7
   const immovableAssets =
     data.selfPropertyValue + data.rentalPropertyValue + data.plotLandValue +
-    data.parentalPropertyValue + data.jewelryValue;
+    data.parentalPropertyValue + data.jewelryValue +
+    data.spouseIncomePerYear + data.spouseLiquidFunds;
 
   // === Recommendations ===
   const recs: RecommendationItem[] = [];
@@ -213,16 +222,18 @@ export function calculateReport(data: FinancialFormData): ReportResult {
     tier: 'immediate'
   });
 
-  const vpfHeadroom = Math.max(0, LIMIT_80C - data.epfPerYear);
+  // Excel formula: IF(VPF>0, (250000 - EPF - VPF), 0)
+  // 250000 is the EPF+VPF combined limit for tax-free interest (Finance Act 2021)
+  const vpfGap = Math.max(0, EPF_VPF_TAX_FREE_LIMIT - data.epfPerYear - data.vpfPerYear);
   recs.push({
     description: 'VPF – Voluntary PF (80C)',
     currentAmount: data.vpfPerYear,
     // Only suggest a top-up if VPF is already started; if 0, no gap (Excel: IF(VPF>0, gap, 0))
-    suggestedAmount: data.vpfPerYear > 0 ? Math.max(0, vpfHeadroom - data.vpfPerYear) : 0,
+    suggestedAmount: data.vpfPerYear > 0 ? vpfGap : 0,
     action: data.vpfPerYear > 0
-      ? 'Increase VPF to maximize ₹1.5L 80C limit'
-      : 'Increase EPF voluntary contribution through employer to utilize the ₹1.5L 80C limit',
-    status: data.vpfPerYear >= vpfHeadroom && vpfHeadroom > 0 ? 'done' : data.vpfPerYear > 0 ? 'gap' : 'new',
+      ? `Increase VPF — EPF+VPF combined can be up to ₹2.5L/yr for tax-free interest; headroom: ₹${vpfGap.toLocaleString('en-IN')}/yr`
+      : 'Start VPF through employer to earn tax-free EPF interest on contributions up to ₹2.5L/yr (EPF+VPF combined)',
+    status: vpfGap === 0 && data.vpfPerYear > 0 ? 'done' : data.vpfPerYear > 0 ? 'gap' : 'new',
     tier: 'immediate'
   });
 
@@ -251,12 +262,15 @@ export function calculateReport(data: FinancialFormData): ReportResult {
     tier: 'immediate'
   });
 
+  const homeLoanInterest = data.homeLoanInterestPerYear > 0
+    ? data.homeLoanInterestPerYear
+    : data.houseEmiPerMonth > 0 ? 200000 : 0;
   recs.push({
-    description: 'Home Loan Interest – 24B (self-occupied)',
-    currentAmount: data.houseEmiPerMonth > 0 ? 200000 : 0,
+    description: 'Home Loan Interest – Section 24B (self-occupied)',
+    currentAmount: homeLoanInterest,
     suggestedAmount: data.homeLoanPrincipalPerYear > 0 ? 0 : 200000,
     action: data.homeLoanPrincipalPerYear > 0
-      ? 'Claim interest deduction under 24B — max ₹2L/yr for self-occupied property; ensure Form 16 Part B reflects this'
+      ? `Claim interest deduction under 24B — max ₹2L/yr for self-occupied property${data.homeLoanDetails ? `; ${data.homeLoanDetails}` : ''}; ensure Form 16 Part B reflects this`
       : 'Home loan interest up to ₹2L/yr is deductible under 24B — reduces taxable income significantly',
     status: data.homeLoanPrincipalPerYear > 0 ? 'done' : 'new',
     tier: 'immediate'
@@ -377,7 +391,7 @@ export function calculateReport(data: FinancialFormData): ReportResult {
       description: 'Home Loan EMI',
       currentAmount: data.houseEmiPerMonth * 12,
       suggestedAmount: data.houseEmiPerMonth * 12,
-      action: 'Convert to Max Gain OD account (SBI/HDFC/BoB) — park monthly surplus to reduce outstanding principal and save interest',
+      action: `${data.homeLoanDetails ? data.homeLoanDetails + ' — ' : ''}Convert to Max Gain OD account (SBI/HDFC/BoB) — park monthly surplus to reduce outstanding principal and save interest`,
       status: 'done',
       tier: 'medium'
     });
@@ -422,6 +436,17 @@ export function calculateReport(data: FinancialFormData): ReportResult {
       currentAmount: data.sgbFutureValue,
       suggestedAmount: data.sgbFutureValue,
       action: 'Hold to 8-yr maturity for tax-free capital gain; reinvest in equity post-maturity',
+      status: 'done',
+      tier: 'medium'
+    });
+  }
+
+  if (data.spareGoldValue > 0) {
+    recs.push({
+      description: 'Spare Gold (Coins / Biscuits)',
+      currentAmount: data.spareGoldValue,
+      suggestedAmount: data.spareGoldValue,
+      action: 'Physical gold for investment — consider converting to SGB on next tranche for 2.5% annual interest + capital appreciation; avoids storage risk',
       status: 'done',
       tier: 'medium'
     });
@@ -555,6 +580,28 @@ export function calculateReport(data: FinancialFormData): ReportResult {
       currentAmount: data.jewelryValue,
       suggestedAmount: data.jewelryValue,
       action: 'Keep for personal use; for investment exposure to gold, prefer SGB over physical gold',
+      status: 'done',
+      tier: 'long'
+    });
+  }
+
+  if (data.spouseIncomePerYear > 0) {
+    recs.push({
+      description: 'Spouse Income / Business',
+      currentAmount: data.spouseIncomePerYear,
+      suggestedAmount: data.spouseIncomePerYear,
+      action: 'Plan tax-efficient use of spouse income — invest in spouse\'s name to split tax liability; explore NPS, PPF, ELSS for spouse',
+      status: 'done',
+      tier: 'long'
+    });
+  }
+
+  if (data.spouseLiquidFunds > 0) {
+    recs.push({
+      description: 'Spouse Liquid Funds',
+      currentAmount: data.spouseLiquidFunds,
+      suggestedAmount: data.spouseLiquidFunds,
+      action: 'Deploy spouse\'s liquid funds in tax-efficient instruments in spouse\'s name — ELSS, PPF, NPS; avoids clubbing provisions where possible',
       status: 'done',
       tier: 'long'
     });

@@ -40,11 +40,13 @@ const defaultData: FinancialFormData = {
   grossIncomePerYear: 0, basicSalaryPerYear: 0,
   takeHomePerMonth: 0, totalMonthlyExpenses: 0, otherIncomePerYear: 0,
   houseEmiPerMonth: 0, vehicleEmiPerMonth: 0, otherEmiPerMonth: 0,
+  homeLoanDetails: '', homeLoanInterestPerYear: 0,
   fdMaturedThisYear: 0, dividendsThisYear: 0, mfCapitalGainsThisYear: 0,
-  sgbFutureValue: 0, fdFutureValue: 0, mfUnrealizedFuture: 0,
+  sgbFutureValue: 0, spareGoldValue: 0, fdFutureValue: 0, mfUnrealizedFuture: 0,
   epfCorpus: 0, ppfCorpus: 0, npsCorpus: 0, ssyLicCorpus: 0, otherFutureCorpus: 0,
   selfPropertyValue: 0, rentalPropertyValue: 0, plotLandValue: 0,
   parentalPropertyValue: 0, jewelryValue: 0,
+  spouseIncomePerYear: 0, spouseLiquidFunds: 0,
   lifeTermInsurancePerYear: 0, medicalInsurancePerYear: 0,
   parentsLifeInsurancePerYear: 0, parentsMedicalInsurancePerYear: 0,
   buildingInsurancePerYear: 0,
@@ -396,6 +398,17 @@ export default function App() {
                   <input type="number" placeholder="0" value={num('otherEmiPerMonth')}
                     onChange={e => handleChange('otherEmiPerMonth', Number(e.target.value))} min={0} />
                 </div>
+                <div className="field-group">
+                  <div className="field-label">Home loan interest / year <span>₹ (for 24B — leave 0 if unknown)</span></div>
+                  <input type="number" placeholder="0" value={num('homeLoanInterestPerYear')}
+                    onChange={e => handleChange('homeLoanInterestPerYear', Number(e.target.value))} min={0} />
+                </div>
+                <div className="field-group" style={{ gridColumn: 'span 2' }}>
+                  <div className="field-label">Home loan details <span>Bank, amount, years, rate — shown in report</span></div>
+                  <input type="text" placeholder="HDFC, ₹30L, 16 yrs, 9%"
+                    value={formData.homeLoanDetails}
+                    onChange={e => handleChange('homeLoanDetails', e.target.value)} />
+                </div>
               </div>
 
               <div className="section-label">Liquid funds available this year</div>
@@ -423,6 +436,11 @@ export default function App() {
                   <div className="field-label">SGB – Sovereign Gold Bond <span>₹</span></div>
                   <input type="number" placeholder="0" value={num('sgbFutureValue')}
                     onChange={e => handleChange('sgbFutureValue', Number(e.target.value))} min={0} />
+                </div>
+                <div className="field-group">
+                  <div className="field-label">Spare gold (coins / biscuits) <span>₹ — not jewellery</span></div>
+                  <input type="number" placeholder="0" value={num('spareGoldValue')}
+                    onChange={e => handleChange('spareGoldValue', Number(e.target.value))} min={0} />
                 </div>
                 <div className="field-group">
                   <div className="field-label">FD – future maturity amount <span>₹</span></div>
@@ -487,6 +505,16 @@ export default function App() {
                   <div className="field-label">Jewellery / ornaments <span>₹</span></div>
                   <input type="number" placeholder="0" value={num('jewelryValue')}
                     onChange={e => handleChange('jewelryValue', Number(e.target.value))} min={0} />
+                </div>
+                <div className="field-group">
+                  <div className="field-label">Spouse income / year <span>₹ — salary or business</span></div>
+                  <input type="number" placeholder="0" value={num('spouseIncomePerYear')}
+                    onChange={e => handleChange('spouseIncomePerYear', Number(e.target.value))} min={0} />
+                </div>
+                <div className="field-group">
+                  <div className="field-label">Spouse liquid funds <span>₹ — FD, stocks, savings</span></div>
+                  <input type="number" placeholder="0" value={num('spouseLiquidFunds')}
+                    onChange={e => handleChange('spouseLiquidFunds', Number(e.target.value))} min={0} />
                 </div>
               </div>
             </>)}
